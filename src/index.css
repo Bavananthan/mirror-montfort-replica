@@ -2,41 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Mont-Fort Alpine Design System - All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 @layer base {
   :root {
+    /* Alpine Color Palette */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 210 15% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Snow White Cards */
+    --card: 0 0% 99%;
+    --card-foreground: 210 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 210 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Alpine Blue Primary */
+    --primary: 212 85% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 212 85% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Ice Blue Secondary */
+    --secondary: 200 25% 96%;
+    --secondary-foreground: 212 85% 35%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Mountain Mist */
+    --muted: 210 15% 95%;
+    --muted-foreground: 210 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Golden Hour Accent */
+    --accent: 35 85% 65%;
+    --accent-foreground: 0 0% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Danger Red */
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Frost Borders */
+    --border: 210 15% 90%;
+    --input: 210 15% 92%;
+    --ring: 212 85% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Alpine Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(212 85% 45%) 0%, hsl(212 85% 65%) 50%, hsl(35 85% 65%) 100%);
+    --gradient-mountain: linear-gradient(180deg, hsl(212 85% 45%) 0%, hsl(200 45% 85%) 100%);
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.2) 0%, hsl(0 0% 100% / 0.05) 100%);
+    
+    /* Typography */
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    /* Shadows */
+    --shadow-mountain: 0 20px 40px -10px hsl(212 85% 45% / 0.3);
+    --shadow-glass: 0 8px 32px -8px hsl(212 85% 45% / 0.2);
+    --shadow-elevation: 0 4px 20px -4px hsl(210 15% 15% / 0.1);
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +129,48 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+
+  .mountain-gradient {
+    background: var(--gradient-mountain);
+  }
+
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .shadow-mountain {
+    box-shadow: var(--shadow-mountain);
+  }
+
+  .shadow-glass {
+    box-shadow: var(--shadow-glass);
+  }
+
+  .shadow-elevation {
+    box-shadow: var(--shadow-elevation);
+  }
+
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .transition-spring {
+    transition: var(--transition-spring);
+  }
+
+  .text-3d {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
