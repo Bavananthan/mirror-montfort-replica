@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Scene3D } from '@/components/3d/Scene3D';
+import { WebGLErrorBoundary } from '@/components/3d/WebGLErrorBoundary';
 import { Play, ArrowDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import heroImage from '@/assets/hero-mountain.jpg';
@@ -20,9 +21,20 @@ export const HeroSection = () => {
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* 3D Scene Overlay */}
+      {/* 3D Scene Overlay - with fallback for non-WebGL devices */}
       <div className="absolute inset-0 z-10 opacity-60">
-        <Scene3D className="w-full h-full" />
+        <WebGLErrorBoundary
+          fallback={
+            <div className="w-full h-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+              <div className="text-center text-white">
+                <div className="text-6xl mb-4">🏔️</div>
+                <h3 className="text-2xl font-bold">Alpine Paradise</h3>
+              </div>
+            </div>
+          }
+        >
+          <Scene3D className="w-full h-full" />
+        </WebGLErrorBoundary>
       </div>
 
       {/* Content */}
