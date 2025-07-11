@@ -1,12 +1,18 @@
 import { Navigation } from '@/components/layout/Navigation';
 import { Footer } from '@/components/sections/Footer';
-import { Scene3D } from '@/components/3d/Scene3D';
-import { WebGLErrorBoundary } from '@/components/3d/WebGLErrorBoundary';
+import { ParallaxSection } from '@/components/3d/ParallaxSection';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Camera, Play, Download, Share2 } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import { useParallax, useStaggeredParallax } from '@/hooks/useParallax';
+import alpinePeaks from '@/assets/alpine-peaks.jpg';
+import luxuryLodge from '@/assets/luxury-lodge.jpg';
+import skierAction from '@/assets/skier-action.jpg';
+import alpineDining from '@/assets/alpine-dining.jpg';
+import alpineSpa from '@/assets/alpine-spa.jpg';
+import winterLandscape from '@/assets/winter-landscape.jpg';
 
 const Gallery = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,8 +21,13 @@ const Gallery = () => {
     offset: ["start start", "end start"]
   });
 
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "80%"]);
-  const parallaxY = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"]);
+  const { ref: galleryRef, y: galleryY } = useParallax({ speed: 0.3 });
+  const galleryParallax = useStaggeredParallax(9);
+
+  const imageMap = [
+    alpinePeaks, luxuryLodge, skierAction, alpineDining, 
+    alpineSpa, winterLandscape, luxuryLodge, skierAction, alpinePeaks
+  ];
 
   const galleryItems = [
     {
@@ -82,17 +93,14 @@ const Gallery = () => {
       <Navigation />
       
       {/* Hero Section with 3D and Parallax */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ y: heroY }}
-        >
-          <WebGLErrorBoundary>
-            <Scene3D className="w-full h-full" />
-          </WebGLErrorBoundary>
-        </motion.div>
-        
-        <div className="relative z-10 text-center text-white px-4">
+      <ParallaxSection
+        backgroundImage={alpinePeaks}
+        className="h-screen flex items-center justify-center"
+        parallaxSpeed={0.8}
+        enable3D={true}
+        overlayOpacity={0.3}
+      >
+        <div className="text-center text-white px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -118,7 +126,7 @@ const Gallery = () => {
             Capture the essence of Alpine luxury through our lens
           </motion.p>
         </div>
-      </section>
+      </ParallaxSection>
 
       <main className="relative z-20 bg-background">
         {/* Gallery Controls */}
@@ -153,30 +161,31 @@ const Gallery = () => {
         </section>
 
         {/* Gallery Grid */}
-        <motion.section 
-          className="py-20"
-          style={{ y: parallaxY }}
-        >
+        <section className="py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <motion.div 
+              ref={galleryRef}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+              style={{ y: galleryY }}
+            >
               {galleryItems.map((item, index) => (
                 <motion.div
                   key={item.title}
+                  ref={galleryParallax[index].ref}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
+                  style={{ y: galleryParallax[index].y }}
                   className="group cursor-pointer"
                 >
                   <Card className="overflow-hidden glass-effect hover:shadow-glass transition-smooth">
-                    <div className="relative aspect-square bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden">
-                      {item.type === 'video' ? (
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+                    <div className="relative aspect-square bg-cover bg-center overflow-hidden"
+                         style={{ backgroundImage: `url(${imageMap[index]})` }}>
+                      <div className="absolute inset-0 bg-black/20" />
+                      {item.type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
                           <Play className="w-16 h-16 text-white/80 group-hover:scale-110 transition-transform" />
-                        </div>
-                      ) : (
-                        <div className="text-4xl opacity-60 group-hover:scale-110 transition-transform">
-                          📸
                         </div>
                       )}
                       
@@ -211,9 +220,9 @@ const Gallery = () => {
                   </Card>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </motion.section>
+        </section>
 
         {/* Call to Action */}
         <section className="py-20 bg-primary text-white">

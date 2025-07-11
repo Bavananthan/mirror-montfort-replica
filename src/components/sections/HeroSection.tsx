@@ -1,44 +1,22 @@
 import { Button } from '@/components/ui/button';
-import { Scene3D } from '@/components/3d/Scene3D';
-import { WebGLErrorBoundary } from '@/components/3d/WebGLErrorBoundary';
+import { ParallaxSection } from '@/components/3d/ParallaxSection';
 import { Play, ArrowDown } from 'lucide-react';
 import { motion } from 'framer-motion';
-import heroImage from '@/assets/hero-mountain.jpg';
+import { useParallax } from '@/hooks/useParallax';
+import alpinePeaks from '@/assets/alpine-peaks.jpg';
 
 export const HeroSection = () => {
+  const { ref: floatingRef, y: floatingY } = useParallax({ speed: 0.3 });
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `url(${heroImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-        }}
-      >
-        <div className="absolute inset-0 bg-black/30" />
-      </div>
-
-      {/* 3D Scene Overlay - with fallback for non-WebGL devices */}
-      <div className="absolute inset-0 z-10 opacity-60">
-        <WebGLErrorBoundary
-          fallback={
-            <div className="w-full h-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
-              <div className="text-center text-white">
-                <div className="text-6xl mb-4">🏔️</div>
-                <h3 className="text-2xl font-bold">Alpine Paradise</h3>
-              </div>
-            </div>
-          }
-        >
-          <Scene3D className="w-full h-full" />
-        </WebGLErrorBoundary>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-20 text-center text-white px-4 sm:px-6 lg:px-8">
+    <ParallaxSection
+      backgroundImage={alpinePeaks}
+      className="min-h-screen flex items-center justify-center"
+      parallaxSpeed={0.5}
+      enable3D={true}
+      overlayOpacity={0.3}
+    >
+      <div className="text-center text-white px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -102,7 +80,11 @@ export const HeroSection = () => {
       </div>
 
       {/* Floating Elements */}
-      <div className="absolute inset-0 z-15 pointer-events-none">
+      <motion.div 
+        ref={floatingRef}
+        className="absolute inset-0 z-15 pointer-events-none"
+        style={{ y: floatingY }}
+      >
         {Array.from({ length: 20 }, (_, i) => (
           <motion.div
             key={i}
@@ -122,7 +104,7 @@ export const HeroSection = () => {
             }}
           />
         ))}
-      </div>
-    </section>
+      </motion.div>
+    </ParallaxSection>
   );
 };

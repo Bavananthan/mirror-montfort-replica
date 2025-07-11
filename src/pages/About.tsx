@@ -1,12 +1,14 @@
 import { Navigation } from '@/components/layout/Navigation';
 import { Footer } from '@/components/sections/Footer';
-import { Scene3D } from '@/components/3d/Scene3D';
-import { WebGLErrorBoundary } from '@/components/3d/WebGLErrorBoundary';
+import { ParallaxSection } from '@/components/3d/ParallaxSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Award, Mountain, Calendar } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import { useParallax, useStaggeredParallax } from '@/hooks/useParallax';
+import luxuryLodge from '@/assets/luxury-lodge.jpg';
+import alpineDining from '@/assets/alpine-dining.jpg';
 
 const About = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,8 +17,9 @@ const About = () => {
     offset: ["start start", "end start"]
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.3]);
+  const { ref: storyRef, y: storyY } = useParallax({ speed: 0.3 });
+  const { ref: teamRef, y: teamY } = useParallax({ speed: 0.4 });
+  const statsParallax = useStaggeredParallax(4);
 
   const stats = [
     { icon: Calendar, label: 'Founded', value: '1984' },
@@ -30,17 +33,14 @@ const About = () => {
       <Navigation />
       
       {/* Hero Section with 3D and Parallax */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ y, opacity }}
-        >
-          <WebGLErrorBoundary>
-            <Scene3D className="w-full h-full" />
-          </WebGLErrorBoundary>
-        </motion.div>
-        
-        <div className="relative z-10 text-center text-white px-4">
+      <ParallaxSection
+        backgroundImage={luxuryLodge}
+        className="h-screen flex items-center justify-center"
+        parallaxSpeed={0.6}
+        enable3D={true}
+        overlayOpacity={0.4}
+      >
+        <div className="text-center text-white px-4">
           <motion.h1
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -58,7 +58,7 @@ const About = () => {
             Four decades of Alpine excellence in the heart of Switzerland
           </motion.p>
         </div>
-      </section>
+      </ParallaxSection>
 
       <main className="relative z-20 bg-background">
         {/* Story Section */}
@@ -66,10 +66,12 @@ const About = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <motion.div
+                ref={storyRef}
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
+                style={{ y: storyY }}
               >
                 <h2 className="text-4xl font-display font-bold mb-6">
                   A Legacy of Excellence
@@ -102,8 +104,11 @@ const About = () => {
                 viewport={{ once: true }}
                 className="relative"
               >
-                <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <div className="text-6xl">🏔️</div>
+                <div 
+                  className="aspect-square rounded-2xl bg-cover bg-center"
+                  style={{ backgroundImage: `url(${alpineDining})` }}
+                >
+                  <div className="absolute inset-0 bg-black/30 rounded-2xl" />
                 </div>
               </motion.div>
             </div>
@@ -120,10 +125,12 @@ const About = () => {
               {stats.map((stat, index) => (
                 <motion.div
                   key={stat.label}
+                  ref={statsParallax[index].ref}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
+                  style={{ y: statsParallax[index].y }}
                   className="text-center"
                 >
                   <stat.icon className="w-12 h-12 mx-auto mb-4 text-primary-foreground/80" />
@@ -153,7 +160,11 @@ const About = () => {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <motion.div 
+              ref={teamRef}
+              className="grid md:grid-cols-3 gap-8"
+              style={{ y: teamY }}
+            >
               {['Resort Director', 'Head Chef', 'Ski Instructor'].map((role, index) => (
                 <motion.div
                   key={role}
@@ -177,7 +188,7 @@ const About = () => {
                   </Card>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </section>
       </main>

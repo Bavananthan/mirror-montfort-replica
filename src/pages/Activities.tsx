@@ -1,12 +1,15 @@
 import { Navigation } from '@/components/layout/Navigation';
 import { Footer } from '@/components/sections/Footer';
-import { Scene3D } from '@/components/3d/Scene3D';
-import { WebGLErrorBoundary } from '@/components/3d/WebGLErrorBoundary';
+import { ParallaxSection } from '@/components/3d/ParallaxSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Activity, Camera, Utensils, Dumbbell, TreePine, Star } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import { useParallax, useStaggeredParallax } from '@/hooks/useParallax';
+import skierAction from '@/assets/skier-action.jpg';
+import alpineSpa from '@/assets/alpine-spa.jpg';
+import winterLandscape from '@/assets/winter-landscape.jpg';
 
 const Activities = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,8 +18,9 @@ const Activities = () => {
     offset: ["start start", "end start"]
   });
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const { ref: activitiesRef, y: activitiesY } = useParallax({ speed: 0.3 });
+  const { ref: seasonalRef, y: seasonalY } = useParallax({ speed: 0.4 });
+  const activitiesParallax = useStaggeredParallax(6);
 
   const activities = [
     {
@@ -62,20 +66,14 @@ const Activities = () => {
       <Navigation />
       
       {/* Hero Section with 3D and Parallax */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ y: backgroundY }}
-        >
-          <WebGLErrorBoundary>
-            <Scene3D className="w-full h-full" />
-          </WebGLErrorBoundary>
-        </motion.div>
-        
-        <motion.div 
-          className="relative z-10 text-center text-white px-4"
-          style={{ y: textY }}
-        >
+      <ParallaxSection
+        backgroundImage={skierAction}
+        className="h-screen flex items-center justify-center"
+        parallaxSpeed={0.7}
+        enable3D={true}
+        overlayOpacity={0.3}
+      >
+        <div className="text-center text-white px-4">
           <motion.h1
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -92,8 +90,8 @@ const Activities = () => {
           >
             Discover endless possibilities in the Swiss Alps
           </motion.p>
-        </motion.div>
-      </section>
+        </div>
+      </ParallaxSection>
 
       <main className="relative z-20 bg-background">
         {/* Activities Grid */}
@@ -114,14 +112,20 @@ const Activities = () => {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <motion.div 
+              ref={activitiesRef}
+              className="grid md:grid-cols-2 xl:grid-cols-3 gap-8"
+              style={{ y: activitiesY }}
+            >
               {activities.map((activity, index) => (
                 <motion.div
                   key={activity.title}
+                  ref={activitiesParallax[index].ref}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
+                  style={{ y: activitiesParallax[index].y }}
                 >
                   <Card className="h-full glass-effect hover:shadow-glass transition-smooth group cursor-pointer">
                     <CardHeader>
@@ -151,14 +155,16 @@ const Activities = () => {
                   </Card>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </section>
 
         {/* Seasonal Activities */}
-        <motion.section 
-          className="py-20 bg-muted/30"
-          style={{ y: useTransform(scrollYProgress, [0.4, 0.8], ["0%", "-30%"]) }}
+        <ParallaxSection
+          backgroundImage={alpineSpa}
+          className="py-20"
+          parallaxSpeed={0.4}
+          overlayOpacity={0.8}
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -176,7 +182,11 @@ const Activities = () => {
               </p>
             </motion.div>
 
-            <div className="grid lg:grid-cols-2 gap-16">
+            <motion.div 
+              ref={seasonalRef}
+              className="grid lg:grid-cols-2 gap-16"
+              style={{ y: seasonalY }}
+            >
               {['Winter Wonderland', 'Summer Alpine'].map((season, index) => (
                 <motion.div
                   key={season}
@@ -186,8 +196,17 @@ const Activities = () => {
                   viewport={{ once: true }}
                   className="space-y-6"
                 >
-                  <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <div className="text-6xl">{index === 0 ? '❄️' : '🌸'}</div>
+                  <div 
+                    className="aspect-video rounded-2xl bg-cover bg-center"
+                    style={{ 
+                      backgroundImage: index === 0 
+                        ? `url(${winterLandscape})` 
+                        : `url(${alpineSpa})` 
+                    }}
+                  >
+                    <div className="w-full h-full bg-black/40 rounded-2xl flex items-center justify-center">
+                      <div className="text-6xl">{index === 0 ? '❄️' : '🌸'}</div>
+                    </div>
                   </div>
                   <div>
                     <h3 className="text-2xl font-display font-bold mb-4">{season}</h3>
@@ -203,9 +222,9 @@ const Activities = () => {
                   </div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </motion.section>
+        </ParallaxSection>
       </main>
 
       <Footer />
