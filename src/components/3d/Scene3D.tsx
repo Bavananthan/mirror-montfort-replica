@@ -1,9 +1,13 @@
 import { Suspense, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, PerspectiveCamera, Loader } from '@react-three/drei';
-import { Mountain3D } from './Mountain3D';
-import { FloatingElements } from './FloatingElements';
+import { EffectComposer, Bloom, DepthOfField } from '@react-three/postprocessing';
+import { EnhancedMountain3D } from './EnhancedMountain3D';
+import { EnhancedFloatingElements } from './EnhancedFloatingElements';
+import { ParticleSystem, SnowParticles } from './ParticleSystem';
+import { AtmosphericEffects } from './AtmosphericEffects';
 import { isWebGLSupported } from '@/lib/webgl-utils';
+import * as THREE from 'three';
 
 interface Scene3DProps {
   className?: string;
@@ -45,39 +49,91 @@ export const Scene3D = ({ className }: Scene3DProps) => {
   try {
     return (
       <div className={className}>
-        <Canvas>
+        <Canvas 
+          shadows
+          camera={{ position: [0, 5, 25], fov: 75 }}
+          gl={{ 
+            antialias: true, 
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.25
+          }}
+        >
           <Suspense fallback={null}>
             <PerspectiveCamera makeDefault position={[0, 5, 25]} />
             
-            {/* Lighting */}
-            <ambientLight intensity={0.6} color="#b8d4ff" />
+            {/* Enhanced Lighting Setup */}
+            <ambientLight intensity={0.4} color="#b8d4ff" />
             <directionalLight 
-              position={[10, 20, 5]} 
-              intensity={1}
+              position={[15, 25, 8]} 
+              intensity={1.5}
               color="#ffd700"
               castShadow
+              shadow-mapSize={[2048, 2048]}
+              shadow-camera-far={50}
+              shadow-camera-left={-20}
+              shadow-camera-right={20}
+              shadow-camera-top={20}
+              shadow-camera-bottom={-20}
             />
             <directionalLight 
-              position={[-10, 10, -5]} 
-              intensity={0.5}
+              position={[-10, 15, -8]} 
+              intensity={0.8}
               color="#87ceeb"
             />
+            <pointLight
+              position={[0, 20, 0]}
+              intensity={0.5}
+              color="#ffffff"
+              distance={50}
+              decay={2}
+            />
+            <spotLight
+              position={[0, 30, 15]}
+              angle={0.3}
+              penumbra={0.1}
+              intensity={0.8}
+              color="#e8f4ff"
+              castShadow
+            />
             
-            {/* Environment */}
-            <Environment preset="dawn" background />
+            {/* Environment and Background */}
+            <Environment preset="dawn" background environmentIntensity={0.8} />
+            <fog attach="fog" args={['#e8f4ff', 25, 100]} />
             
-            {/* 3D Elements */}
-            <Mountain3D />
-            <FloatingElements />
+            {/* Enhanced 3D Elements */}
+            <EnhancedMountain3D />
+            <EnhancedFloatingElements />
+            <ParticleSystem count={3000} />
+            <SnowParticles />
+            <AtmosphericEffects />
             
-            {/* Controls */}
+            {/* Post-processing Effects */}
+            <EffectComposer>
+              <Bloom 
+                intensity={0.3} 
+                luminanceThreshold={0.9} 
+                luminanceSmoothing={0.025}
+                height={300}
+              />
+              <DepthOfField
+                focusDistance={0.02}
+                focalLength={0.05}
+                bokehScale={3}
+              />
+            </EffectComposer>
+            
+            {/* Enhanced Controls */}
             <OrbitControls 
               enablePan={false}
               enableZoom={true}
               enableRotate={true}
               minDistance={15}
-              maxDistance={50}
-              maxPolarAngle={Math.PI / 2}
+              maxDistance={60}
+              maxPolarAngle={Math.PI / 2.2}
+              autoRotate={true}
+              autoRotateSpeed={0.5}
+              enableDamping={true}
+              dampingFactor={0.05}
             />
           </Suspense>
         </Canvas>
